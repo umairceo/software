@@ -1,0 +1,172 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+Route::get('/hello', function () {
+    
+    return response()->json(['message' => 'Hello, World!']);
+});
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// routes/web.php or routes/api.php
+
+Route::get('/data', function () {
+    $data = [
+        'name' => 'John Doe',
+        'age' => 30,
+        'city' => 'Example City',
+    ];
+
+    return response()->json($data);
+});
+
+
+// ----------------------------------------------------------------------
+
+
+// routes/web.php or routes/api.php
+
+Route::get('/user/{id}', function ($id) {
+    $user = [
+        'id' => $id,
+        'name' => 'User Name',
+        'email' => 'user@example.com',
+    ];
+
+    return response()->json($user);
+});
+
+
+// ------------------------------------------------------------------------
+
+
+// routes/web.php or routes/api.php
+
+
+Route::post('/create-user', function (Request $request) {
+    $userData = $request->only(['name', 'email']);
+
+    // Static user data as an array
+    $user = [
+        'id' => 'shahzaib',
+        'name' => 'User Name',
+        'email' => 'user@example.com',
+    ];
+
+    $cars = array("Volvo", "BMW", "Toyota");
+
+    // Perform validation if needed
+
+    // Save user or manipulate data
+
+    // Print the name
+    $name = $userData['name'];
+    error_log("Name: $name\n");
+
+    // Return the response with userData and static user data
+    return response()->json(['message' => 'User created successfully', 'userData' => $userData, 
+    'user' => $user, "cars" => $cars]);
+});
+
+
+
+
+// ----------------------------------------------------------------------
+
+
+
+// routes/web.php or routes/api.php
+
+Route::middleware('auth:api')->get('/authenticated-user', function () {
+    $user = auth()->user();
+
+    return response()->json($user);
+});
+
+
+
+// ----------------------------------------------------------------------
+
+
+// routes/web.php or routes/api.php
+
+Route::get('/custom-response', function () {
+    try {
+        // Your logic here
+
+        $responseData = [
+            'status' => 'success',
+            'message' => 'Custom response message',
+            // Additional data
+        ];
+
+        return response()->json($responseData);
+    } catch (\Exception $e) {
+        $errorResponse = [
+            'status' => 'error',
+            'message' => 'An error occurred',
+        ];
+
+        return response()->json($errorResponse, 500);
+    }
+});
+
+
+use Illuminate\Support\Facades\DB;
+
+Route::get('/AllStudents', function () {
+    $students = DB::select('SELECT * FROM STUDENTS');
+    return response()->json($students);
+});
+
+Route::post('/InsertStudent', function (Request $request) {
+    $id = $request->input('id');
+    $name = $request->input('name');
+
+    // Using raw SQL query for insertion
+    DB::insert('INSERT INTO students (id, name) VALUES (?, ?)', [$id, $name]);
+
+    return response()->json(['message' => 'Student added successfully']);
+});
+
+
+Route::post('/UpdateStudent/{name}', function (Request $request, $name) {
+    $data = $request->validate([
+        'id' => 'required|integer',
+        // Add other validation rules as needed
+    ]);
+
+    // Using raw SQL query for update
+    DB::update('UPDATE students SET id = ? WHERE name = ?', [$data['id'], $name]);
+
+    return response()->json(['message' => 'Student updated successfully']);
+});
+
+
+Route::post('/sum', function (Request $request) {
+    $data = $request->input('numbers');
+
+    if (!is_array($data)) {
+        return response()->json(['error' => 'Input should be an array of numbers'], 400);
+    }
+
+    $sum = array_sum($data);
+
+    return response()->json(['sum' => $sum]);
+});
